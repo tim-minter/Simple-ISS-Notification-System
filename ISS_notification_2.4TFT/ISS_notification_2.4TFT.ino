@@ -15,19 +15,35 @@
  */
 
 #include <Arduino.h>
-#include <WiFi.h>
-#include <HTTPClient.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson
 #include "SSD1306.h" //https://github.com/squix78/esp8266-oled-ssd1306
 #include <TimeLib.h> 
 #include <DNSServer.h>
-#include <WebServer.h>
+#include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ILI9341.h>
+
+#define TFT_CS D0  //for D1 mini or TFT I2C Connector Shield (V1.1.0 or later)
+#define TFT_DC D8  //for D1 mini or TFT I2C Connector Shield (V1.1.0 or later)
+#define TFT_RST -1 //for D1 mini or TFT I2C Connector Shield (V1.1.0 or later)
+#define TS_CS D3   //for D1 mini or TFT I2C Connector Shield (V1.1.0 or later)
+
+// #define TFT_CS 14  //for D32 Pro
+// #define TFT_DC 27  //for D32 Pro
+// #define TFT_RST 33 //for D32 Pro
+// #define TS_CS  12 //for D32 Pro
+
+Adafruit_ILI9341 display = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 
 //Find your Latitude and Longitude here
 //https://www.latlong.net/
-float mylat = 39.360095;
-float mylon = -84.58558;
+float mylat = 50.838807;
+float mylon = -0.133425;
 float isslat, isslon;
 int distance, number, count;
 String payload;
@@ -38,36 +54,36 @@ const String iss = "http://api.open-notify.org/iss-now.json";
 const String ppl = "http://api.open-notify.org/astros.json";
 String pas = "http://api.open-notify.org/iss-pass.json?";
 
-SSD1306  display(0x3c, 5,4); 
-
 void setup() {
   Serial.begin(9600);
-  display.init();
-
-  display.flipScreenVertically();
-  display.setFont(ArialMT_Plain_10);
-   WiFiManager wifiManager;
-    wifiManager.autoConnect("AutoConnectAP");
+  display.begin();
+  display.setTextSize(2);
+  display.setTextColor(ILI9341_WHITE);
+  display.setRotation(3);
+  display.fillScreen(ILI9341_BLACK);
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("AutoConnectAP");
   pas = pas + "lat=" + (String)mylat+"&lon="+ (String)mylon;
+  display.println(pas);
   Serial.println(pas);
+  delay(3000);
 }
 
 void loop() {
  
  getJson(iss);
-  //Serial.println(payload);   //Print the response payload
+ //Serial.println(payload);   //Print the response payload
  decodeLocJson();
  getDistance();
  issLocOLEDDisplay();
  issLocSerialDisplay();
  delay(5000);
- 
   
-  getJson(pas);
-  decodePassJson();
-  displayPassSerial();
-  displayPassOLED();
-  delay(5000);
+ getJson(pas);
+ decodePassJson();
+ displayPassSerial();
+ displayPassOLED();
+ delay(5000);
   
  getJson(ppl);
  decodePeopleJson();
@@ -77,17 +93,21 @@ void loop() {
  
 }
 void issLocOLEDDisplay() {
-  display.clear();
-  display.drawString(0,0,"The ISS is currently at: ");
+ display.fillScreen(ILI9341_BLACK);
+ display.setCursor(0,0);
+ display.println("The ISS is currently at: ");
  char temp[15];
  sprintf(temp, "%d.%02d,%d.%02d",(int)isslat,abs((int)(isslat*100)%100),(int)isslon,abs((int)(isslon*100)%100));
- display.drawString(25,15,temp);
+ display.setCursor(25,20);
+ display.println(temp);
  char temp1[30];
  sprintf(temp1, "ISS is about %d miles", distance);
- display.drawString(0,27,temp1);
- display.drawString(30,38, "from you.");
- display.drawString(12,51, "And moving fast!!");
- display.display();
+ display.setCursor(0,45);
+ display.println(temp1);
+ display.setCursor(30,65);
+ display.println("from you. ");
+ display.setCursor(12,85);
+ display.println("And moving fast!!");
 }
 
 void issLocSerialDisplay() {
@@ -170,17 +190,18 @@ void decodePeopleJson() {
  }
 
  void displayPeopleOLED() {
-  display.clear();
+  //display.clear();
+  display.fillScreen(ILI9341_BLACK);
   char temp2[50];
   sprintf(temp2, "%d people are in space.", number);
-  display.drawString(0,0,temp2);
+   display.setCursor(0,0);
+ display.println(temp2);
 
  if (number > 5) {number = 5;} //Display the 1st 5 Astros on OLED 
  for (int i=0;i<number; i++) {
- display.drawString(0,10*(i+1),name[i] + ", " + craft[i]);
+  display.setCursor(0,20*(i+1));
+  display.println(name[i] + ", " + craft[i]);
  }
-  
- display.display();
 }
 
 void decodePassJson() {
@@ -221,12 +242,13 @@ void displayPassSerial() {
 }
 
  void displayPassOLED() {
-  display.clear();
-  display.drawString(0,0,"Pass Prediction");
+  display.fillScreen(ILI9341_BLACK);
+  display.setCursor(0, 0);
+  display.println("Pass Prediction");
 
  for (int i=0;i<count; i++) {
- display.drawString(0,10*(i+1),risetime[i] + " [" + (String)duration[i]+" m]");
+  display.setCursor(0,20*(i+1));
+  display.println(risetime[i] + " [" + (String)duration[i]+" m]");
  }
-  
- display.display();
+
 }
