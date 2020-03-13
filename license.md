@@ -1,4 +1,5 @@
 Copyright (c) 2018 LeRoy Miller
+Forked and Modified by Tim Minter 2020
 
 This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
