@@ -1,15 +1,5 @@
-# ESP8266 ISS Notification System on 2.4inch Lolin Sheild
-A version of the Simple-ISS-Notification-System by LeRoy Miller modified to run on the 2.4Inch TFT Touch Screen shield available for Lolin/Wemos devices.
-
-## Hardware
-ESP8266 (Wemos/Lolin)
-Lolin 2.4 Inch TFT Touch Screen Shield
-
-## Credits
-
-Forked from the Simple-ISS-Notification-System by LeRoy Miller.
-
-## License
+Copyright (c) 2018 LeRoy Miller
+Copyright (c) 2020 Tim Minter
 
 This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,3 +13,5 @@ This program is free software: you can redistribute it and/or modify
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses>
+
+
