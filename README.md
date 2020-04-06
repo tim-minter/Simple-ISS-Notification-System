@@ -1,4 +1,4 @@
-# ESP8266 ISS Notification System on 2.4inch Lolin Sheild
+# ESP8266 ISS Notification System on 2.4inch Lolin Shield
 A version of the Simple-ISS-Notification-System by LeRoy Miller modified to run on the 2.4Inch TFT Touch Screen shield available for Lolin/Wemos devices.
 
 ## Hardware
